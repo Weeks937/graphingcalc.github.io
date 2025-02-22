@@ -1,3 +1,5 @@
+let points = []; // Stores points as [{x: 2, y: 3}, {x: -1, y: 4}]
+
 const canvas = document.getElementById("graphCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -30,6 +32,8 @@ function drawGraph() {
     drawGrid();
     drawAxes();
     drawEquations();
+    drawAllPoints();
+
 }
 
 // Draw Grid and Labels
@@ -113,7 +117,7 @@ function drawEquations() {
     });
 }
 
-// Add a New Equation
+// Add a new input box for equations or points
 function addEquation() {
     const list = document.getElementById("equationList");
     const inputWrapper = document.createElement("div");
@@ -121,10 +125,22 @@ function addEquation() {
 
     const input = document.createElement("input");
     input.type = "text";
-    input.placeholder = "Enter equation (e.g., x*x)";
+    input.placeholder = "Enter equation (e.g., x*x) or point (e.g., (2,3))";
+
     input.onchange = () => {
-        equations.push(input.value);
-        drawGraph();
+        const value = input.value.trim();
+        if (value.match(/^\(\s*-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?\s*\)$/)) {
+            // Handle points like (2, 3)
+            const point = value
+                .replace(/[()]/g, "")
+                .split(",")
+                .map(Number);
+            drawPoint(point[0], point[1]);
+        } else {
+            // Handle equations
+            equations.push(value);
+            drawGraph();
+        }
     };
 
     const removeBtn = document.createElement("button");
@@ -139,6 +155,27 @@ function addEquation() {
     inputWrapper.appendChild(removeBtn);
     list.appendChild(inputWrapper);
 }
+
+// Store and draw a point on the graph
+function drawPoint(x, y) {
+    points.push({ x, y }); // Save point to the array
+    drawGraph(); // Redraw to ensure the point stays with panning/zooming
+}
+
+// Draw all stored points (called inside drawGraph)
+function drawAllPoints() {
+    ctx.fillStyle = "red";
+    points.forEach(point => {
+        const px = centerX + point.x * scale;
+        const py = centerY - point.y * scale;
+
+        ctx.beginPath();
+        ctx.arc(px, py, 5, 0, Math.PI * 2); // Draw point
+        ctx.fill();
+    });
+}
+
+
 
 // Zoom Logic (Keep Axes Centered)
 function zoom(factor) {
@@ -246,6 +283,10 @@ function applyReflectionY(eq) {
     console.log(`Reflecting equation: ${eq} over Y-axis`);
     return eq.replace(/x/g, `-x`);
 }
+// Automatically add an input box on page load
+window.onload = () => {
+    addEquation();
+};
 
 
 drawGraph();
