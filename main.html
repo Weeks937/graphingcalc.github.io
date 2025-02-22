@@ -1,25 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Graphing Calculator</title>
     <link rel="stylesheet" href="main.css">
 </head>
+
 <body>
     <div class="container">
-        <canvas id="graphCanvas" width="600" height="600"></canvas>
-        <div id="controls">
-            <button onclick="plotPoint()">Plot Point</button>
-            <button onclick="drawLine()">Draw Line</button>
-            <button onclick="drawShape()">Draw Shape</button>
-            <button onclick="reflect('x')">Reflect across X</button>
-            <button onclick="reflect('y')">Reflect across Y</button>
-            <button onclick="rotate()">Rotate</button>
-            <button onclick="dilate()">Dilate</button>
-            <button onclick="translate()">Translate</button>
+        <!-- Left Panel for Equations -->
+        <div class="sidebar">
+            <h2>Graphing Calculator</h2>
+            
+            <!-- Equation List -->
+            <div id="equationList">
+                <!-- List of equations will go here -->
+            </div>
+            
+            <!-- Add Equation Button -->
+            <button onclick="addEquation()">Add Equation</button>
+        
+            <!-- Transformations Section -->
+            <h3>Transformations</h3>
+            <button onclick="applyTransformation('dilate')">Dilate</button>
+            <button onclick="applyTransformation('translate')">Translate</button>
+            <button onclick="applyTransformation('rotate')">Rotate</button>
+            <button onclick="applyTransformation('reflectX')">Reflect X-axis</button>
+            <button onclick="applyTransformation('reflectY')">Reflect Y-axis</button>
+        </div>
+        
+        <!-- The Canvas Area for the graph -->
+        <canvas id="graphCanvas"></canvas>
+        
+
+        <!-- Graph Area -->
+        <div class="graph-container">
+            <canvas id="graphCanvas"></canvas>
         </div>
     </div>
-    <script src="main.js"></script>
+
+    <script src="main.js" defer></script>
+
+
+    
 </body>
+
 </html>
