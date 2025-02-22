@@ -1,0 +1,26 @@
+/* main.css */
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+}
+
+.container {
+    display: flex;
+    align-items: center;
+}
+
+#graphCanvas {
+    border: 1px solid black;
+}
+
+#controls {
+    margin-left: 20px;
+}
+button {
+    margin: 10px;
+}
