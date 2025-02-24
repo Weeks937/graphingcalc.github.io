@@ -129,27 +129,47 @@ function addEquation() {
 
     input.onchange = () => {
         const value = input.value.trim();
-        if (value.match(/^\(\s*-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?\s*\)$/)) {
-            // Handle points like (2, 3)
-            const point = value
-                .replace(/[()]/g, "")
-                .split(",")
-                .map(Number);
-            drawPoint(point[0], point[1]);
+    
+        // Handle multiple points: (2,3); (4,5); (-3,2)
+        if (value.match(/^\(\s*-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?\s*\)$/) || value.includes(";")) {
+            const pointPairs = value.split(";"); // Allow multiple points separated by ";"
+    
+            pointPairs.forEach(pair => {
+                const [x, y] = pair.replace(/[()]/g, "").split(",").map(Number);
+                if (!isNaN(x) && !isNaN(y)) {
+                    drawPoint(x, y);
+                }
+            });
         } else {
-            // Handle equations
+            // Handle equations (e.g., x*x)
             equations.push(value);
-            drawGraph();
         }
+    
+        input.value = ""; // Clear input
+        drawGraph(); // Redraw everything
     };
+    
+    
+    
+    
 
     const removeBtn = document.createElement("button");
     removeBtn.textContent = "❌";
     removeBtn.onclick = () => {
-        equations = equations.filter(e => e !== input.value);
-        list.removeChild(inputWrapper);
+        const value = input.value.trim();
+        if (value.match(/^\(\s*-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?\s*\)$/)) {
+            // Remove corresponding point from array
+            const [x, y] = value.replace(/[()]/g, "").split(",").map(Number);
+            points = points.filter(p => p.x !== x || p.y !== y);
+        } else {
+            // Remove equation from array
+            equations = equations.filter(e => e !== value);
+        }
+        input.value = ""; // Clear the input instead of removing it
+
         drawGraph();
     };
+    
 
     inputWrapper.appendChild(input);
     inputWrapper.appendChild(removeBtn);
@@ -162,18 +182,47 @@ function drawPoint(x, y) {
     drawGraph(); // Redraw to ensure the point stays with panning/zooming
 }
 
-// Draw all stored points (called inside drawGraph)
+// Draw all stored points and connect them with lines
+// Draw all stored points and connect them with lines
 function drawAllPoints() {
-    ctx.fillStyle = "red";
-    points.forEach(point => {
-        const px = centerX + point.x * scale;
-        const py = centerY - point.y * scale;
+    if (points.length === 0) return;
 
+    ctx.fillStyle = "red";
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 2;
+
+    // Start the path to connect points
+    ctx.beginPath();
+
+    points.forEach((point, index) => {
+        // Convert graph coordinates to canvas coordinates
+        const px = centerX + point.x * scale;  // X-axis mapping
+        const py = centerY - point.y * scale;  // Y-axis mapping (inverted)
+
+        // Log point for debugging
+        console.log(`Point ${index + 1}: (${point.x}, ${point.y}) → (${px}, ${py})`);
+
+        // Draw the point on the canvas
         ctx.beginPath();
-        ctx.arc(px, py, 5, 0, Math.PI * 2); // Draw point
+        ctx.arc(px, py, 5, 0, Math.PI * 2);
         ctx.fill();
+
+        // Connect the points with a line
+        if (index === 0) {
+            ctx.moveTo(px, py); // Move to the first point
+        } else {
+            ctx.lineTo(px, py); // Draw to the next point
+        }
     });
+
+    // Draw the final connecting line
+    if (points.length > 1) {
+        ctx.stroke();
+    }
 }
+
+
+
 
 
 
