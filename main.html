@@ -1,56 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Graphing Calculator</title>
     <link rel="stylesheet" href="main.css">
 </head>
-
 <body>
-    <div class="container">
-        <!-- Left Panel for Equations -->
-        <div class="sidebar">
-            <h2>Graphing Calculator</h2>
-            
-            <!-- Equation List -->
-            <div id="equationList">
-                <!-- List of equations will go here -->
-            </div>
-            
-            <h3>Points</h3>
-            <div id="pointList">
-                <!-- Points will be listed here dynamically -->
-            </div>
+    <!-- Left Panel for Input and Controls -->
+    <div id="left-panel">
+        <h1>Graphing Calculator</h1>
+        <input id="input-box" type="text" placeholder="Enter equation or point (e.g., (2,3))" />
 
-            <h3>Lines & Equations</h3>
-            <div id="lineList">
-                <!-- Lines and equations will be displayed here -->
-            </div>
-
-        
-            <!-- Transformations Section -->
-            <h3>Transformations</h3>
-            <button onclick="applyTransformation('dilate')">Dilate</button>
-            <button onclick="applyTransformation('translate')">Translate</button>
-            <button onclick="applyTransformation('rotate')">Rotate</button>
-            <button onclick="applyTransformation('reflectX')">Reflect X-axis</button>
-            <button onclick="applyTransformation('reflectY')">Reflect Y-axis</button>
+        <!-- Points Section -->
+        <div id="points-section">
+            <h2>Points</h2>
         </div>
-        
-        <!-- The Canvas Area for the graph -->
-        <canvas id="graphCanvas"></canvas>
-        
 
-        <!-- Graph Area -->
-        <div class="graph-container">
-            <canvas id="graphCanvas"></canvas>
+        <!-- Lines & Equations Section -->
+        <div id="lines-section">
+            <h2>Lines & Equations</h2>
+        </div>
+
+        <!-- Transformations Section -->
+        <div id="transformations-section">
+            <h2>Transformations</h2>
+            <button id="dilate">Dilate</button>
+            <button id="translate">Translate</button>
+            <button id="rotate">Rotate</button>
+            <button id="reflect-x">Reflect over X-axis</button>
+            <button id="reflect-y">Reflect over Y-axis</button>
         </div>
     </div>
 
-    <script src="main.js" defer></script>
+    <!-- Graph Container -->
+    <div id="graph-container"></div>
 
-
-    
+    <script src="https://www.desmos.com/api/v1.8/calculator.js"></script>
+    <script src="main.js"></script>
 </body>
+</html>

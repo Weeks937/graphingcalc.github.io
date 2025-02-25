@@ -96,3 +96,30 @@ button:hover {
     justify-content: space-between;
     margin: 5px 0;
 }
+
+/* Left panel for inputs */
+#left-panel {
+    width: 25%;
+    height: 100vh; /* Full height */
+    overflow-y: auto; /* Scroll if content overflows */
+    float: left; /* Ensure it stays on the left side */
+    padding: 10px;
+    box-sizing: border-box;
+    background: #f8f8f8; /* Light background for contrast */
+}
+
+/* Graph container takes the rest of the screen */
+#graph-container {
+    width: 75%;
+    height: 100vh; /* Full height */
+    position: absolute;
+    right: 0; /* Pin to the right */
+}
+
+/* Ensure body fits the viewport */
+body, html {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    overflow: hidden; /* Prevent scrollbars */
+}

@@ -8,23 +8,21 @@ let scale = 40; // Pixels per unit
 let centerX, centerY; // To store the center of the canvas
 let equations = [];
 
-// Ensure canvas size adjusts to the container and update center values
+// Resize the canvas and update the center
 function resizeCanvas() {
-    // Resize canvas to match its container's width and height
     canvas.width = canvas.parentElement.offsetWidth;
     canvas.height = canvas.parentElement.offsetHeight;
 
-    // Update the center values based on the new size
+    // Keep the center aligned with the canvas size
     centerX = canvas.width / 2;
     centerY = canvas.height / 2;
 
-    console.log(`Canvas resized to: ${canvas.width}x${canvas.height}`);
-    drawGraph();  // Redraw the graph after resizing
+    drawGraph();
 }
 
-// Resize canvas on page load and window resize
+// Resize on load and window resize
 window.addEventListener("resize", resizeCanvas);
-resizeCanvas();  // Initial resize on load
+resizeCanvas(); // Initial call on page load
 
 // Redraw the entire graph (grid, axes, points, and lines)
 function drawGraph() {
@@ -149,11 +147,11 @@ function addEquation() {
 
 
     
-// Handle both equations and multiple points input
+// Handle input for points, lines, and equations
 function handleInput(value) {
     if (!value) return; // Ignore empty input
 
-    // Handle multiple points (e.g., (2,3);(4,5))
+    // Handle points input (e.g., (2,3);(4,5))
     if (value.match(/^\(\s*-?\d+(\.\d+)?,\s*-?\d+(\.\d+)?\s*\)$/) || value.includes(";")) {
         const pointPairs = value.split(";");
 
@@ -165,9 +163,8 @@ function handleInput(value) {
             }
         });
 
-        // If multiple points are added, treat them as a line
         if (pointPairs.length > 1) {
-            displayLine(value); // Display the line in the line section
+            displayLine(value); // Display line information
         }
     } else {
         // Handle equations (e.g., "x*x")
@@ -175,11 +172,12 @@ function handleInput(value) {
         displayEquation(value); // Display the equation
     }
 
-    // Clear the input and redraw the graph
+    // Clear the input and update the graph
     const input = document.querySelector(".main-input");
     if (input) input.value = "";
-    drawGraph();
+    drawGraph(); // Refresh the graph
 }
+
 
 
 
@@ -486,6 +484,131 @@ function displayPoint(x, y) {
     pointItem.appendChild(removeBtn);
     list.appendChild(pointItem);
 }
+
+// Dilate points, lines, and equations by a factor
+function applyDilation(factor) {
+    // Scale all points relative to the origin
+    points = points.map(p => ({
+        x: p.x * factor,
+        y: p.y * factor
+    }));
+
+    // Scale all equations (modify "x" and "y" in the expression)
+    equations = equations.map(eq =>
+        eq.replace(/x/g, `(x / ${factor})`).replace(/y/g, `(y / ${factor})`)
+    );
+
+    drawGraph(); // Redraw the graph with transformed data
+}
+
+
+// Translate (shift) points and equations
+function applyTranslation(shiftX, shiftY) {
+    // Shift all points
+    points = points.map(p => ({
+        x: p.x + shiftX,
+        y: p.y + shiftY
+    }));
+
+    // Adjust equations (shift in function notation)
+    equations = equations.map(eq =>
+        eq.replace(/x/g, `(x - ${shiftX})`).replace(/y/g, `(y - ${shiftY})`)
+    );
+
+    drawGraph(); // Redraw the graph
+}
+
+
+// Rotate points and equations around the origin
+function applyRotation(angle) {
+    const radians = (angle * Math.PI) / 180; // Convert degrees to radians
+
+    // Rotate all points using a 2D rotation matrix
+    points = points.map(p => ({
+        x: p.x * Math.cos(radians) - p.y * Math.sin(radians),
+        y: p.x * Math.sin(radians) + p.y * Math.cos(radians)
+    }));
+
+    // Modify equations for rotation (x and y transformations)
+    equations = equations.map(eq =>
+        eq
+            .replace(/x/g, `(x * Math.cos(${radians}) + y * Math.sin(${radians}))`)
+            .replace(/y/g, `(-x * Math.sin(${radians}) + y * Math.cos(${radians}))`)
+    );
+
+    drawGraph(); // Update the graph
+}
+
+
+// Reflect points and equations across the X-axis
+function applyReflectionX() {
+    points = points.map(p => ({ x: p.x, y: -p.y }));
+
+    // Adjust equations for X-axis reflection
+    equations = equations.map(eq => eq.replace(/y/g, `(-y)`));
+
+    drawGraph();
+}
+
+
+// Reflect points and equations across the Y-axis
+function applyReflectionY() {
+    points = points.map(p => ({ x: -p.x, y: p.y }));
+
+    // Adjust equations for Y-axis reflection
+    equations = equations.map(eq => eq.replace(/x/g, `(-x)`));
+
+    drawGraph();
+}
+
+
+// Ask for and apply dilation
+function promptDilation() {
+    const factor = parseFloat(prompt("Enter dilation factor (e.g., 2 for double size):"));
+    if (!isNaN(factor)) applyDilation(factor);
+}
+
+// Ask for and apply translation
+function promptTranslation() {
+    const shiftX = parseFloat(prompt("Enter X shift:"));
+    const shiftY = parseFloat(prompt("Enter Y shift:"));
+    if (!isNaN(shiftX) && !isNaN(shiftY)) applyTranslation(shiftX, shiftY);
+}
+
+// Ask for and apply rotation
+function promptRotation() {
+    const angle = parseFloat(prompt("Enter rotation angle (in degrees):"));
+    if (!isNaN(angle)) applyRotation(angle);
+}
+
+// Clear and redraw the entire graph
+function drawGraph() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+
+    drawGrid();      // Draw the grid
+    drawAxes();      // Draw the X and Y axes
+    drawEquations(); // Draw all stored equations
+    drawAllPoints(); // Draw points and connect them with lines
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const graphContainer = document.getElementById('graph-container');
+
+    // Ensure the graph container exists before initializing
+    if (graphContainer) {
+        const calculator = Desmos.GraphingCalculator(graphContainer, {
+            expressions: true,
+            zoomButtons: true
+        });
+
+        // Resize the graph properly when the window resizes
+        window.addEventListener('resize', () => {
+            calculator.resize();
+        });
+    } else {
+        console.error("Graph container not found!");
+    }
+});
 
 
 
