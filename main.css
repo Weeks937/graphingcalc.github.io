@@ -67,3 +67,32 @@ button:hover {
     height: 100%;
     display: block; /* Prevents extra space below the canvas */
 }
+
+/* Ensure points display correctly */
+#pointList {
+    margin-top: 10px;
+}
+
+.point-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 5px 0;
+}
+
+/* Ensure input box stays visible */
+.main-input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+}
+
+/* Ensure lines and equations display properly */
+#lineList {
+    margin-top: 10px;
+}
+
+.line-item, .equation-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 5px 0;
+}
