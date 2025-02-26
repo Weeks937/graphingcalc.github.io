@@ -1,3 +1,4 @@
+
 let points = []; // Stores points as [{x: 2, y: 3}, {x: -1, y: 4}]
 
 const canvas = document.getElementById("graphCanvas");
@@ -69,13 +70,13 @@ function drawGrid() {
     }
 }
 
-// Adjust Label Steps Dynamically
 function dynamicStep() {
-    if (scale < 20) return 5;
-    if (scale < 10) return 10;
-    if (scale < 5) return 20;
-    return 1;
+    if (scale < 20) return 5; // Show grid lines every 5 units when zoomed in
+    if (scale < 50) return 10; // Show grid lines every 10 units
+    if (scale < 100) return 20; // Show grid lines every 20 units
+    return 50; // Show grid lines every 50 units for large scale
 }
+
 
 // Draw Axes
 function drawAxes() {
@@ -349,21 +350,32 @@ window.onload = () => {
 
 
 
+window.onload = function () {
+    // Your code to add equations or any other logic here
+
 
 // Zoom Logic (Keep Axes Centered)
 function zoom(factor) {
     const oldScale = scale;
     scale *= factor;
 
+    // Recalculate the center to ensure zooming is relative to the center of the canvas
     centerX = (centerX - canvas.width / 2) * (scale / oldScale) + canvas.width / 2;
     centerY = (centerY - canvas.height / 2) * (scale / oldScale) + canvas.height / 2;
+
     drawGraph();
+    console.log(centerX);
+    console.log(centerY);
+    console.log(scale);
 }
 
 // Mouse Wheel Zoom
 canvas.addEventListener("wheel", (e) => {
-    zoom(e.deltaY > 0 ? 0.9 : 1.1);
+    e.preventDefault(); // Prevent page scroll
+    zoom(e.deltaY > 0 ? 0.9 : 1.1); // Zoom in or out based on wheel direction
 });
+
+
 
 // Pan Logic (Mouse Drag)
 let isDragging = false;
@@ -385,6 +397,8 @@ canvas.addEventListener("mousemove", (e) => {
 });
 
 canvas.addEventListener("mouseup", () => isDragging = false);
+
+};
 
 function applyTransformation(type) {
     console.log(`Applying transformation: ${type}`);  // Debugging log
@@ -456,10 +470,6 @@ function applyReflectionY(eq) {
     console.log(`Reflecting equation: ${eq} over Y-axis`);
     return eq.replace(/x/g, `-x`);
 }
-// Automatically add an input box on page load
-window.onload = () => {
-    addEquation();
-};
 
 // Display each point in a separate section with a delete button
 function displayPoint(x, y) {
@@ -581,41 +591,138 @@ function promptRotation() {
     if (!isNaN(angle)) applyRotation(angle);
 }
 
-// Clear and redraw the entire graph
 function drawGraph() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
-
-    drawGrid();      // Draw the grid
-    drawAxes();      // Draw the X and Y axes
-    drawEquations(); // Draw all stored equations
-    drawAllPoints(); // Draw points and connect them with lines
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+    drawGrid();
+    drawAxes();
+    drawEquations();
+    drawAllPoints(); // Ensure all elements are drawn after zooming
 }
 
+
 document.addEventListener("DOMContentLoaded", () => {
-    const graphContainer = document.getElementById('graph-container');
+    const canvas = document.getElementById('graphCanvas');
+    const ctx = canvas.getContext('2d');
 
-    // Ensure the graph container exists before initializing
-    if (graphContainer) {
-        const calculator = Desmos.GraphingCalculator(graphContainer, {
-            expressions: true,
-            zoomButtons: true
-        });
+    // ✅ Declare global variables for axis and scale
+    let centerX, centerY, scale;
 
-        // Resize the graph properly when the window resizes
-        window.addEventListener('resize', () => {
-            calculator.resize();
-        });
-    } else {
-        console.error("Graph container not found!");
+    // Ensure the canvas fits its container and initialize graph
+    function resizeCanvas() {
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+
+        // Update the center of the graph and scale
+        centerX = canvas.width / 2;
+        centerY = canvas.height / 2;
+        scale = 40; // Pixels per unit
+
+        drawGraph(); // Redraw the graph on resize
     }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas(); // Ensure it's properly sized on load
+
+    // ✅ Main function to draw the grid, axes, and numbers
+    function drawGraph() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+
+        drawGrid();
+        drawAxes();
+    }
+
+    // ✅ Draw the grid (background lines)
+    function drawGrid() {
+        ctx.strokeStyle = "#ddd"; // Light gray grid
+        ctx.lineWidth = 1;
+
+        // Vertical grid lines
+        for (let x = centerX % scale; x < canvas.width; x += scale) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, canvas.height);
+            ctx.stroke();
+        }
+
+        // Horizontal grid lines
+        for (let y = centerY % scale; y < canvas.height; y += scale) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(canvas.width, y);
+            ctx.stroke();
+        }
+    }
+
+    // ✅ Draw the X and Y axes and their numbers
+    function drawAxes() {
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 2;
+
+        // X-axis
+        ctx.beginPath();
+        ctx.moveTo(0, centerY);
+        ctx.lineTo(canvas.width, centerY);
+        ctx.stroke();
+
+        // Y-axis
+        ctx.beginPath();
+        ctx.moveTo(centerX, 0);
+        ctx.lineTo(centerX, canvas.height);
+        ctx.stroke();
+
+        // Axis numbers
+        ctx.fillStyle = "black";
+        ctx.font = "14px Arial";
+
+        // X-axis labels
+        for (let x = centerX; x < canvas.width; x += scale) {
+            const label = Math.round((x - centerX) / scale);
+            if (label !== 0) ctx.fillText(label, x + 2, centerY - 5);
+        }
+        for (let x = centerX; x > 0; x -= scale) {
+            const label = Math.round((x - centerX) / scale);
+            if (label !== 0) ctx.fillText(label, x - 10, centerY - 5);
+        }
+
+        // Y-axis labels
+        for (let y = centerY; y < canvas.height; y += scale) {
+            const label = Math.round((centerY - y) / scale);
+            if (label !== 0) ctx.fillText(label, centerX + 5, y - 2);
+        }
+        for (let y = centerY; y > 0; y -= scale) {
+            const label = Math.round((centerY - y) / scale);
+            if (label !== 0) ctx.fillText(label, centerX + 5, y + 14);
+        }
+    }
+
+        // ✅ Zoom Function
+        function zoom(event) {
+            const zoomFactor = 1.1;
+    
+            // Check direction of the wheel
+            if (event.deltaY < 0) {
+                // Zoom in (increase scale)
+                scale *= zoomFactor;
+            } else {
+                // Zoom out (decrease scale)
+                scale /= zoomFactor;
+            }
+    
+            // Clamp scale to reasonable limits
+            scale = Math.max(10, Math.min(scale, 300));
+    
+            drawGraph(); // Redraw with new scale
+        }
+    
+        // Add event listener for mouse wheel zooming
+        canvas.addEventListener('wheel', zoom);
+    
+        // ✅ Initialize scale and draw graph
+        scale = 40; // 40 pixels = 1 unit
 });
 
 
 
-drawGraph();
 
-// Ensure input box and graph are ready when the page loads
-window.onload = () => {
-    addEquation(); // Ensure the input box appears
-    drawGraph();   // Initialize the graph
-};
+
+drawGraph();

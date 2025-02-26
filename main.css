@@ -61,12 +61,6 @@ button:hover {
     position: relative;
 }
 
-/* Make the canvas fill the entire graph area */
-#graphCanvas {
-    width: 100%;
-    height: 100%;
-    display: block; /* Prevents extra space below the canvas */
-}
 
 /* Ensure points display correctly */
 #pointList {
@@ -97,29 +91,39 @@ button:hover {
     margin: 5px 0;
 }
 
-/* Left panel for inputs */
-#left-panel {
-    width: 25%;
-    height: 100vh; /* Full height */
-    overflow-y: auto; /* Scroll if content overflows */
-    float: left; /* Ensure it stays on the left side */
-    padding: 10px;
-    box-sizing: border-box;
-    background: #f8f8f8; /* Light background for contrast */
-}
-
-/* Graph container takes the rest of the screen */
-#graph-container {
-    width: 75%;
-    height: 100vh; /* Full height */
-    position: absolute;
-    right: 0; /* Pin to the right */
-}
-
-/* Ensure body fits the viewport */
+/* Reset body margin to prevent overflow */
 body, html {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    overflow: hidden; /* Prevent scrollbars */
+    overflow: hidden; /* Prevent unwanted scroll */
+}
+
+/* Left Panel (Sidebar) */
+#left-panel {
+    width: 25%; /* Takes 25% of the screen */
+    height: 100vh; /* Full viewport height */
+    position: fixed; /* Stays on the left side */
+    left: 0;
+    top: 0;
+    background: #f8f8f8; /* Light background */
+    padding: 20px; /* Space inside the panel */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
+    overflow-y: auto; /* Enable scroll if content overflows */
+    z-index: 1000; /* Keep it on top */
+}
+
+/* Graph Container (Canvas Area) */
+#graph-container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 75%; /* Takes the remaining 75% */
+    height: 100vh; /* Full viewport height */
+}
+
+/* Ensure the Canvas Fills Its Container */
+#graphCanvas {
+    width: 100%;
+    height: 100%;
 }
