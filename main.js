@@ -4,26 +4,35 @@ let points = []; // Stores points as [{x: 2, y: 3}, {x: -1, y: 4}]
 const canvas = document.getElementById("graphCanvas");
 const ctx = canvas.getContext("2d");
 
-// Initial graph settings
-let scale = 40; // Pixels per unit
-let centerX, centerY; // To store the center of the canvas
-let equations = [];
+// Global Variables
+let centerX = 0;
+let centerY = 0;
+let scale = 40; // Initial zoom level
+let isDragging = false;
+let startX = 0;
+let startY = 0;
+let equations = []; // Ensure this is global and defined
+
+
+console.log(centerX, centerY, scale, isDragging);
+
 
 // Resize the canvas and update the center
 function resizeCanvas() {
     canvas.width = canvas.parentElement.offsetWidth;
     canvas.height = canvas.parentElement.offsetHeight;
 
-    // Keep the center aligned with the canvas size
+    // Update the global center values
     centerX = canvas.width / 2;
     centerY = canvas.height / 2;
 
-    drawGraph();
+    
 }
+
 
 // Resize on load and window resize
 window.addEventListener("resize", resizeCanvas);
-resizeCanvas(); // Initial call on page load
+
 
 // Redraw the entire graph (grid, axes, points, and lines)
 function drawGraph() {
@@ -354,32 +363,29 @@ window.onload = function () {
     // Your code to add equations or any other logic here
 
 
-// Zoom Logic (Keep Axes Centered)
-function zoom(factor) {
-    const oldScale = scale;
-    scale *= factor;
+    function zoom(factor) {
+        const oldScale = scale;     // Store previous scale
+        scale *= factor;            // Adjust scale by the factor
+    
+        // Clamp scale to prevent over-zooming
+        scale = Math.max(10, Math.min(scale, 500));
+    
+        // Adjust center to maintain zoom focus
+        centerX = (centerX - canvas.width / 2) * (scale / oldScale) + canvas.width / 2;
+        centerY = (centerY - canvas.height / 2) * (scale / oldScale) + canvas.height / 2;
+    
+        drawGraph(); // Redraw with new scale and position
+        console.log("Zoom event:", { scale, centerX, centerY });
 
-    // Recalculate the center to ensure zooming is relative to the center of the canvas
-    centerX = (centerX - canvas.width / 2) * (scale / oldScale) + canvas.width / 2;
-    centerY = (centerY - canvas.height / 2) * (scale / oldScale) + canvas.height / 2;
+    }
+    
+    
+    
 
-    drawGraph();
-    console.log(centerX);
-    console.log(centerY);
-    console.log(scale);
-}
-
-// Mouse Wheel Zoom
 canvas.addEventListener("wheel", (e) => {
-    e.preventDefault(); // Prevent page scroll
-    zoom(e.deltaY > 0 ? 0.9 : 1.1); // Zoom in or out based on wheel direction
-});
-
-
-
-// Pan Logic (Mouse Drag)
-let isDragging = false;
-let startX, startY;
+    e.preventDefault();
+    zoom(e.deltaY > 0 ? 0.9 : 1.1);
+}, { passive: false });
 
 canvas.addEventListener("mousedown", (e) => {
     isDragging = true;
@@ -396,7 +402,7 @@ canvas.addEventListener("mousemove", (e) => {
     drawGraph();
 });
 
-canvas.addEventListener("mouseup", () => isDragging = false);
+canvas.addEventListener("mouseup", () => (isDragging = false));
 
 };
 
@@ -620,6 +626,9 @@ document.addEventListener("DOMContentLoaded", () => {
         drawGraph(); // Redraw the graph on resize
     }
 
+    
+
+
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas(); // Ensure it's properly sized on load
 
@@ -720,7 +729,6 @@ document.addEventListener("DOMContentLoaded", () => {
         // ✅ Initialize scale and draw graph
         scale = 40; // 40 pixels = 1 unit
 });
-
 
 
 
