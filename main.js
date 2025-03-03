@@ -348,45 +348,28 @@ function drawAllPoints() {
 
 }
 
-
-
-// Ensure input box is always present on load
-window.onload = () => {
-    addEquation();
-    drawGraph();
-};
-
-
-
-
 window.onload = function () {
     // Your code to add equations or any other logic here
 
 
     function zoom(factor) {
-        const oldScale = scale;     // Store previous scale
-        scale *= factor;            // Adjust scale by the factor
-    
-        // Clamp scale to prevent over-zooming
-        scale = Math.max(10, Math.min(scale, 500));
-    
-        // Adjust center to maintain zoom focus
-        centerX = (centerX - canvas.width / 2) * (scale / oldScale) + canvas.width / 2;
-        centerY = (centerY - canvas.height / 2) * (scale / oldScale) + canvas.height / 2;
-    
-        drawGraph(); // Redraw with new scale and position
-        console.log("Zoom event:", { scale, centerX, centerY });
-
+        scale *= factor;
+        scale = Math.max(10, Math.min(scale, 500)); // Keep zoom limits
+        drawGraph(); // Redraw the graph
+        console.log("Zoom updated:", scale);
     }
     
     
     
+    
+    
 
-canvas.addEventListener("wheel", (e) => {
-    e.preventDefault();
-    zoom(e.deltaY > 0 ? 0.9 : 1.1);
-}, { passive: false });
-
+    canvas.addEventListener("wheel", (e) => {
+        e.preventDefault();
+        console.log("Zoom event detected:", e.deltaY);
+        zoom(e.deltaY > 0 ? 0.9 : 1.1);
+    }, { passive: false });
+    
 canvas.addEventListener("mousedown", (e) => {
     isDragging = true;
     startX = e.clientX;
